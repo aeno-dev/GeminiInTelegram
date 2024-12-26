@@ -1,21 +1,22 @@
-# db.py
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, func
 from sqlalchemy.orm import sessionmaker, declarative_base
 from datetime import datetime
 from typing import List, Dict
 from sqlalchemy import select
 import logging
+import os
 
 # Настройка базового логгера
-logging.basicConfig(
-    level=logging.DEBUG, # Заменил INFO на DEBUG
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    handlers=[
-        logging.StreamHandler()  # Возвращаем вывод в консоль
-    ]
-)
-# Получение основного логгера для бота
 logger = logging.getLogger("db")
+logger.setLevel(logging.DEBUG)
+LOG_DIR = "logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+file_handler = logging.FileHandler(os.path.join(LOG_DIR, "db.log"), encoding="utf-8")
+file_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
 
 Base = declarative_base()
 
@@ -39,6 +40,7 @@ class Database:
         self.engine = create_engine(db_url)
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
+        logger.debug("Database initialized")
 
     def add_record(self, user_id, query, response, image_ids: List[str] = None, model_type: str = 'gemini-2.0-flash-exp'):
         session = self.Session()
