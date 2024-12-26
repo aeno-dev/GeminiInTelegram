@@ -1,0 +1,7 @@
+__pycache__/
+.vscode/
+logs/
+photos/
+venv/
+.env
+bot_history.db
